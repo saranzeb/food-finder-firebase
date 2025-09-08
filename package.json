@@ -6,10 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "seed": "node seed.js"
   },
   "dependencies": {
+    "dotenv": "^17.2.2",
     "firebase": "^12.2.1",
+    "firebase-admin": "^13.5.0",
     "next": "15.5.2",
     "react": "19.1.0",
     "react-dom": "19.1.0"
