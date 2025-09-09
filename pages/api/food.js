@@ -1,73 +1,59 @@
-// pages/api/food.js
-import { initializeApp, getApps } from "firebase/app";
+// V2 deployment fix - API endpoint
+import { initializeApp } from "firebase/app";
 import { getFirestore, collection, getDocs } from "firebase/firestore";
-import OpenAI from "openai";
 
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-};
+// These variables are provided by the canvas environment
+const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+const __app_id = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
-if (!getApps().length) initializeApp(firebaseConfig);
-const db = getFirestore();
+const app = initializeApp(firebaseConfig, __app_id);
+const db = getFirestore(app);
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+export default async function handler(req, res) {
+    try {
+        const { method, query } = req;
 
-function normalize(s){ return (s||"").toLowerCase(); }
-function buildPath(nodesMap, node){
-  const path = [];
-  let cur = node;
-  while(cur){
-    path.unshift({ id: cur.id, name: cur.name });
-    cur = cur.parentId ? nodesMap[cur.parentId] : null;
-  }
-  return path;
-}
+        if (method === 'GET') {
+            const listType = query.list;
+            const categoryName = query.category;
+            const subcategoryName = query.subcategory;
 
-export default async function handler(req, res){
-  if (req.method !== "POST") return res.status(405).json({ ok:false, error:"POST only" });
-  const { query: userQuery } = req.body || {};
-  if (!userQuery) return res.status(400).json({ ok:false, error:"Missing query" });
+            // Fetch all category names
+            if (listType === 'categories') {
+                const querySnapshot = await getDocs(collection(db, "foodCategories"));
+                const categories = querySnapshot.docs.map(doc => doc.data().name);
+                return res.status(200).json(categories);
+            }
 
-  try {
-    const snap = await getDocs(collection(db, "foodNodes"));
-    const nodes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    const nodesMap = Object.fromEntries(nodes.map(n => [n.id,n]));
+            // Fetch subcategory names for a specific category
+            if (categoryName && listType === 'subcategories') {
+                const categoryDocs = await getDocs(collection(db, "foodCategories"));
+                const categoryDoc = categoryDocs.docs.find(doc => doc.data().name === categoryName);
+                if (categoryDoc) {
+                    const subcategories = categoryDoc.data().subcategories.map(sub => sub.name);
+                    return res.status(200).json(subcategories);
+                }
+                return res.status(404).json({ error: "Category not found." });
+            }
 
-    const q = normalize(userQuery);
-    // simple substring search across node.name
-    const match = nodes.find(n => normalize(n.name).includes(q));
-    if (match) {
-      const path = buildPath(nodesMap, match);
-      return res.status(200).json({ ok:true, source:"db", match, path });
+            // Fetch food items for a specific subcategory
+            if (categoryName && subcategoryName) {
+                const categoryDocs = await getDocs(collection(db, "foodCategories"));
+                const categoryDoc = categoryDocs.docs.find(doc => doc.data().name === categoryName);
+                if (categoryDoc) {
+                    const subcategory = categoryDoc.data().subcategories.find(sub => sub.name === subcategoryName);
+                    if (subcategory) {
+                        return res.status(200).json(subcategory.items);
+                    }
+                    return res.status(404).json({ error: "Subcategory not found." });
+                }
+                return res.status(404).json({ error: "Category not found." });
+            }
+        }
+
+        res.status(405).json({ error: "Method not allowed." });
+    } catch (e) {
+        console.error("API Error:", e);
+        res.status(500).json({ error: "Internal Server Error." });
     }
-
-    // LLM fallback: ask for strict JSON
-    const system = `You are a food taxonomy assistant. When given a user phrase, return ONLY valid JSON with keys:
-{"suggested_parent":string|null, "suggested_name":string, "suggested_url":string|null}
-If unsure provide suggested_url=null.`;
-    const userPrompt = `User input: "${userQuery}" — suggest a parent category name (if any), a normalized item/dish name, and a useful URL (or null). Return ONLY JSON.`;
-
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [{ role: "system", content: system }, { role: "user", content: userPrompt }],
-      temperature: 0.2,
-      max_tokens: 300,
-    });
-
-    const text = response.choices?.[0]?.message?.content || "";
-    let parsed;
-    try { parsed = JSON.parse(text); }
-    catch(e){ parsed = { raw: text }; }
-
-    return res.status(200).json({ ok:true, source:"llm", suggestion: parsed });
-
-  } catch (err) {
-    console.error("API error:", err);
-    return res.status(500).json({ ok:false, error: err.message || String(err) });
-  }
 }
