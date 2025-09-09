@@ -11,21 +11,19 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Initial load: Fetch all categories from the API
+  // Load categories
   useEffect(() => {
     async function fetchCategories() {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch("/api/food?list=categories");
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
+        const res = await fetch("/api/food?list=categories");
+        if (!res.ok) throw new Error(`HTTP error! ${res.status}`);
+        const data = await res.json();
         setCategories(data);
-      } catch (e) {
+      } catch (err) {
+        console.error("Error fetching categories:", err);
         setError("Failed to load categories. Please check your API.");
-        console.error("Error fetching categories:", e);
       } finally {
         setLoading(false);
       }
@@ -33,7 +31,7 @@ export default function Home() {
     fetchCategories();
   }, []);
 
-  // Handle category click to fetch subcategories
+  // Category click
   const handleCategoryClick = async (catName) => {
     setSelectedCategory(catName);
     setSelectedSubcategory(null);
@@ -41,35 +39,32 @@ export default function Home() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/food?category=${encodeURIComponent(catName)}&list=subcategories`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
+      const res = await fetch(`/api/food?category=${encodeURIComponent(catName)}&list=subcategories`);
+      if (!res.ok) throw new Error(`HTTP error! ${res.status}`);
+      const data = await res.json();
       setSubcategories(data);
-    } catch (e) {
+    } catch (err) {
+      console.error("Error fetching subcategories:", err);
       setError("Failed to load subcategories. Please check your API.");
-      console.error("Error fetching subcategories:", e);
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle subcategory click to fetch food items
+  // Subcategory click
   const handleSubcategoryClick = async (subName) => {
     setSelectedSubcategory(subName);
+    setResults([]);
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/food?category=${encodeURIComponent(selectedCategory)}&subcategory=${encodeURIComponent(subName)}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
+      const res = await fetch(`/api/food?category=${encodeURIComponent(selectedCategory)}&subcategory=${encodeURIComponent(subName)}`);
+      if (!res.ok) throw new Error(`HTTP error! ${res.status}`);
+      const data = await res.json();
       setResults(data);
-    } catch (e) {
-      setError("Failed to load food items. Please check your API.");
-      console.error("Error fetching items:", e);
+    } catch (err) {
+      console.error("Error fetching items:", err);
+      setError("Failed to load items. Please check your API.");
     } finally {
       setLoading(false);
     }
@@ -80,56 +75,58 @@ export default function Home() {
       <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-4xl text-center">
         <h1 className="text-4xl font-extrabold text-blue-800 mb-6 tracking-wide">Food Finder</h1>
         <p className="text-gray-600 mb-8 max-w-lg mx-auto">
-          Find your next favorite meal by exploring categories and subcategories. The data is now loaded from your API.
+          Explore categories, subcategories, and dishes — data powered by Firebase + your API.
         </p>
 
+        {/* Error */}
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-            <span className="block sm:inline">{error}</span>
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+            {error}
           </div>
         )}
 
-        {loading && (
-          <div className="text-xl font-medium text-gray-500 my-8">
-            Loading...
-          </div>
-        )}
+        {/* Loading */}
+        {loading && <div className="text-xl font-medium text-gray-500 my-8">Loading...</div>}
 
+        {/* Categories */}
         {!loading && (
           <div className="flex flex-col items-center">
-            {/* Category selection */}
             <div className="w-full">
               <h2 className="text-2xl font-semibold text-gray-800 mb-4">Choose a Category:</h2>
               <div className="flex flex-wrap justify-center gap-4">
                 {categories.length > 0 ? (
-                  categories.map((cat, index) => (
+                  categories.map((cat, i) => (
                     <button
-                      key={index}
+                      key={i}
                       onClick={() => handleCategoryClick(cat)}
                       className={`px-6 py-3 rounded-full font-medium transition-all duration-300 transform hover:scale-105 ${
-                        selectedCategory === cat ? 'bg-blue-600 text-white shadow-lg' : 'bg-blue-200 text-blue-800 hover:bg-blue-300'
+                        selectedCategory === cat
+                          ? "bg-blue-600 text-white shadow-lg"
+                          : "bg-blue-200 text-blue-800 hover:bg-blue-300"
                       }`}
                     >
                       {cat}
                     </button>
                   ))
                 ) : (
-                  <p className="text-gray-500">No categories found. Please add data to your database.</p>
+                  <p className="text-gray-500">No categories found.</p>
                 )}
               </div>
             </div>
 
-            {/* Subcategory selection */}
+            {/* Subcategories */}
             {selectedCategory && (
               <div className="w-full mt-10">
                 <h2 className="text-2xl font-semibold text-gray-800 mb-4">Choose a Subcategory:</h2>
                 <div className="flex flex-wrap justify-center gap-4">
-                  {subcategories.map((sub, index) => (
+                  {subcategories.map((sub, i) => (
                     <button
-                      key={index}
+                      key={i}
                       onClick={() => handleSubcategoryClick(sub)}
                       className={`px-6 py-3 rounded-full font-medium transition-all duration-300 transform hover:scale-105 ${
-                        selectedSubcategory === sub ? 'bg-green-600 text-white shadow-lg' : 'bg-green-200 text-green-800 hover:bg-green-300'
+                        selectedSubcategory === sub
+                          ? "bg-green-600 text-white shadow-lg"
+                          : "bg-green-200 text-green-800 hover:bg-green-300"
                       }`}
                     >
                       {sub}
@@ -139,19 +136,19 @@ export default function Home() {
               </div>
             )}
 
-            {/* Results display */}
+            {/* Items */}
             {results.length > 0 && (
               <div className="w-full mt-10">
                 <h2 className="text-2xl font-semibold text-gray-800 mb-4">Results:</h2>
                 <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
                   <div className="grid gap-4">
-                    {results.map((r, index) => (
+                    {results.map((r, i) => (
                       <a
-                        key={index}
+                        key={i}
                         href={r.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-4 bg-white rounded-lg shadow-sm border border-gray-200 hover:border-blue-400 transition-all duration-200 flex items-center justify-between"
+                        className="p-4 bg-white rounded-lg shadow-sm border border-gray-200 hover:border-blue-400 flex justify-between items-center"
                       >
                         <span className="text-blue-600 font-medium hover:underline">{r.name}</span>
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -1,77 +1,115 @@
-import { initializeApp } from "firebase/app";
-import { getFirestore, collection, query, where, getDocs } from "firebase/firestore";
+// pages/api/food.js
+import { initializeApp, getApps } from "firebase/app";
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  getDocs
+} from "firebase/firestore";
 
-// These variables are provided by the canvas environment
-const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-const __app_id = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+// Firebase client config from environment variables (set these in Vercel dashboard)
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+};
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig, __app_id);
-const db = getFirestore(app);
+// Initialize app only once
+if (!getApps().length) {
+  initializeApp(firebaseConfig);
+}
+const db = getFirestore();
 
 export default async function handler(req, res) {
-    try {
-        const { method, query: reqQuery } = req;
+  try {
+    const { method, query: reqQuery } = req;
 
-        if (method === 'GET') {
-            const listType = reqQuery.list;
-            const categoryName = reqQuery.category;
-            const subcategoryName = reqQuery.subcategory;
-
-            // Fetch all top-level categories
-            if (listType === 'categories') {
-                const q = query(collection(db, "foodNodes"), where("type", "==", "category"), where("parentId", "==", null));
-                const querySnapshot = await getDocs(q);
-                const categories = querySnapshot.docs.map(doc => doc.data().name);
-                return res.status(200).json(categories);
-            }
-
-            // Fetch subcategories for a given category name
-            if (categoryName && listType === 'subcategories') {
-                // First, find the parent category's document
-                const categoryQuery = query(collection(db, "foodNodes"), where("name", "==", categoryName), where("parentId", "==", null));
-                const categoryDocs = await getDocs(categoryQuery);
-
-                if (!categoryDocs.empty) {
-                    const categoryId = categoryDocs.docs[0].id;
-                    const subcategoryQuery = query(collection(db, "foodNodes"), where("parentId", "==", categoryId));
-                    const subcategoryDocs = await getDocs(subcategoryQuery);
-                    const subcategories = subcategoryDocs.docs.map(doc => doc.data().name);
-                    return res.status(200).json(subcategories);
-                }
-                return res.status(404).json({ error: "Category not found." });
-            }
-
-            // Fetch food items for a given subcategory
-            if (categoryName && subcategoryName) {
-                // First, find the parent category's document ID
-                const categoryQuery = query(collection(db, "foodNodes"), where("name", "==", categoryName), where("parentId", "==", null));
-                const categoryDocs = await getDocs(categoryQuery);
-
-                if (categoryDocs.empty) {
-                    return res.status(404).json({ error: "Category not found." });
-                }
-                const categoryId = categoryDocs.docs[0].id;
-
-                // Then, find the subcategory's document ID within that category
-                const subcategoryQuery = query(collection(db, "foodNodes"), where("name", "==", subcategoryName), where("parentId", "==", categoryId));
-                const subcategoryDocs = await getDocs(subcategoryQuery);
-
-                if (!subcategoryDocs.empty) {
-                    const subcategoryId = subcategoryDocs.docs[0].id;
-                    // Finally, get the items under that subcategory
-                    const itemsQuery = query(collection(db, "foodNodes"), where("type", "==", "item"), where("parentId", "==", subcategoryId));
-                    const itemsDocs = await getDocs(itemsQuery);
-                    const items = itemsDocs.docs.map(doc => ({ name: doc.data().name, url: doc.data().url }));
-                    return res.status(200).json(items);
-                }
-                return res.status(404).json({ error: "Subcategory not found." });
-            }
-        }
-
-        res.status(405).json({ error: "Method not allowed." });
-    } catch (e) {
-        console.error("API Error:", e);
-        res.status(500).json({ error: "Internal Server Error." });
+    if (method !== "GET") {
+      return res.status(405).json({ error: "Method not allowed" });
     }
+
+    const { list, category, subcategory } = reqQuery;
+
+    // 1. Get top-level categories
+    if (list === "categories") {
+      const q = query(
+        collection(db, "foodNodes"),
+        where("type", "==", "category"),
+        where("parentId", "==", null)
+      );
+      const snap = await getDocs(q);
+      const categories = snap.docs.map((doc) => doc.data().name);
+      return res.status(200).json(categories);
+    }
+
+    // 2. Get subcategories of a category
+    if (list === "subcategories" && category) {
+      const categoryQuery = query(
+        collection(db, "foodNodes"),
+        where("name", "==", category),
+        where("parentId", "==", null)
+      );
+      const categorySnap = await getDocs(categoryQuery);
+
+      if (categorySnap.empty) {
+        return res.status(404).json({ error: "Category not found" });
+      }
+
+      const categoryId = categorySnap.docs[0].id;
+      const subcategoryQuery = query(
+        collection(db, "foodNodes"),
+        where("parentId", "==", categoryId)
+      );
+      const subSnap = await getDocs(subcategoryQuery);
+      const subcategories = subSnap.docs.map((doc) => doc.data().name);
+      return res.status(200).json(subcategories);
+    }
+
+    // 3. Get items under subcategory
+    if (category && subcategory) {
+      const categoryQuery = query(
+        collection(db, "foodNodes"),
+        where("name", "==", category),
+        where("parentId", "==", null)
+      );
+      const categorySnap = await getDocs(categoryQuery);
+      if (categorySnap.empty) {
+        return res.status(404).json({ error: "Category not found" });
+      }
+
+      const categoryId = categorySnap.docs[0].id;
+      const subQuery = query(
+        collection(db, "foodNodes"),
+        where("name", "==", subcategory),
+        where("parentId", "==", categoryId)
+      );
+      const subSnap = await getDocs(subQuery);
+      if (subSnap.empty) {
+        return res.status(404).json({ error: "Subcategory not found" });
+      }
+
+      const subId = subSnap.docs[0].id;
+      const itemsQuery = query(
+        collection(db, "foodNodes"),
+        where("type", "==", "item"),
+        where("parentId", "==", subId)
+      );
+      const itemsSnap = await getDocs(itemsQuery);
+      const items = itemsSnap.docs.map((doc) => ({
+        name: doc.data().name,
+        url: doc.data().url || null,
+      }));
+      return res.status(200).json(items);
+    }
+
+    // Default: invalid query
+    return res.status(400).json({ error: "Invalid request" });
+  } catch (err) {
+    console.error("API Error:", err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
 }
