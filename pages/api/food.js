@@ -33,7 +33,9 @@ export default async function handler(req, res) {
           where("parentId", "==", null)
         );
         const querySnapshot = await getDocs(q);
-        const categories = querySnapshot.docs.map((doc) => doc.data().name);
+        const categories = [
+          ...new Set(querySnapshot.docs.map((doc) => doc.data().name))
+        ];
         return res.status(200).json(categories);
       }
 
@@ -53,7 +55,9 @@ export default async function handler(req, res) {
             where("parentId", "==", categoryId)
           );
           const subcategoryDocs = await getDocs(subcategoryQuery);
-          const subcategories = subcategoryDocs.docs.map((doc) => doc.data().name);
+          const subcategories = [
+            ...new Set(subcategoryDocs.docs.map((doc) => doc.data().name))
+          ];
           return res.status(200).json(subcategories);
         }
         return res.status(404).json({ error: "Category not found." });
@@ -88,10 +92,19 @@ export default async function handler(req, res) {
             where("parentId", "==", subcategoryId)
           );
           const itemsDocs = await getDocs(itemsQuery);
-          const items = itemsDocs.docs.map((doc) => ({
-            name: doc.data().name,
-            url: doc.data().url,
-          }));
+
+          // Deduplicate items by (name + url)
+          const items = [
+            ...new Set(
+              itemsDocs.docs.map((doc) =>
+                JSON.stringify({
+                  name: doc.data().name,
+                  url: doc.data().url,
+                })
+              )
+            ),
+          ].map((s) => JSON.parse(s));
+
           return res.status(200).json(items);
         }
         return res.status(404).json({ error: "Subcategory not found." });

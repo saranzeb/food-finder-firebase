@@ -11,6 +11,13 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Helper to remove duplicates by name
+  const uniqueByName = (arr) =>
+    arr.filter(
+      (item, index, self) =>
+        index === self.findIndex((t) => t.name ? t.name === item.name : t === item)
+    );
+
   // Load categories
   useEffect(() => {
     async function fetchCategories() {
@@ -20,7 +27,7 @@ export default function Home() {
         const res = await fetch("/api/food?list=categories");
         if (!res.ok) throw new Error(`HTTP error! ${res.status}`);
         const data = await res.json();
-        setCategories(data);
+        setCategories([...new Set(data)]); // dedupe categories
       } catch (err) {
         console.error("Error fetching categories:", err);
         setError("Failed to load categories. Please check your API.");
@@ -42,7 +49,7 @@ export default function Home() {
       const res = await fetch(`/api/food?category=${encodeURIComponent(catName)}&list=subcategories`);
       if (!res.ok) throw new Error(`HTTP error! ${res.status}`);
       const data = await res.json();
-      setSubcategories(data);
+      setSubcategories([...new Set(data)]); // dedupe subcategories
     } catch (err) {
       console.error("Error fetching subcategories:", err);
       setError("Failed to load subcategories. Please check your API.");
@@ -61,7 +68,7 @@ export default function Home() {
       const res = await fetch(`/api/food?category=${encodeURIComponent(selectedCategory)}&subcategory=${encodeURIComponent(subName)}`);
       if (!res.ok) throw new Error(`HTTP error! ${res.status}`);
       const data = await res.json();
-      setResults(data);
+      setResults(uniqueByName(data)); // dedupe items by name
     } catch (err) {
       console.error("Error fetching items:", err);
       setError("Failed to load items. Please check your API.");
