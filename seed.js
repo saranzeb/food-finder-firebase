@@ -158,6 +158,7 @@ async function seed() {
 	  ],
 	});
 
+
     console.log("🎉 Seeding finished successfully.");
     process.exit(0);
   } catch (err) {
