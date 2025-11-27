@@ -1,0 +1,107 @@
+{
+  "vendor_name": "Burger King",
+  "vendor_name_cn": "汉堡王",
+  "city": "Beijing",
+  "vendor_links": {
+    "meituan": "",
+    "eleme": "",
+    "douyin": ""
+  },
+  "menu": {
+    "burgers": [
+      {
+        "name": "Whopper",
+        "name_cn": "皇堡",
+        "category": "Burgers"
+      },
+      {
+        "name": "Double Whopper",
+        "name_cn": "双层皇堡",
+        "category": "Burgers"
+      },
+      {
+        "name": "Chicken Whopper",
+        "name_cn": "鸡皇堡",
+        "category": "Chicken Burgers"
+      },
+      {
+        "name": "Spicy Chicken Burger",
+        "name_cn": "香辣鸡腿堡",
+        "category": "Chicken Burgers"
+      },
+      {
+        "name": "Fish Burger",
+        "name_cn": "鱼堡",
+        "category": "Fish Burgers"
+      }
+    ],
+    "chicken_items": [
+      {
+        "name": "Chicken Nuggets",
+        "name_cn": "鸡块",
+        "category": "Chicken Snacks"
+      },
+      {
+        "name": "Spicy Chicken Wings",
+        "name_cn": "香辣鸡翅",
+        "category": "Chicken Snacks"
+      },
+      {
+        "name": "Crispy Chicken Tenders",
+        "name_cn": "鸡柳条",
+        "category": "Chicken Snacks"
+      }
+    ],
+    "sides": [
+      {
+        "name": "French Fries",
+        "name_cn": "薯条",
+        "category": "Sides"
+      },
+      {
+        "name": "Onion Rings",
+        "name_cn": "洋葱圈",
+        "category": "Sides"
+      },
+      {
+        "name": "Corn Cup",
+        "name_cn": "玉米杯",
+        "category": "Sides"
+      }
+    ],
+    "drinks": [
+      {
+        "name": "Coca-Cola",
+        "name_cn": "可口可乐",
+        "category": "Drinks"
+      },
+      {
+        "name": "Sprite",
+        "name_cn": "雪碧",
+        "category": "Drinks"
+      },
+      {
+        "name": "Iced Lemon Tea",
+        "name_cn": "冰柠檬红茶",
+        "category": "Drinks"
+      },
+      {
+        "name": "Hot Coffee",
+        "name_cn": "热咖啡",
+        "category": "Drinks"
+      }
+    ],
+    "desserts": [
+      {
+        "name": "Sundae",
+        "name_cn": "圣代",
+        "category": "Desserts"
+      },
+      {
+        "name": "Ice Cream Cone",
+        "name_cn": "甜筒",
+        "category": "Desserts"
+      }
+    ]
+  }
+}

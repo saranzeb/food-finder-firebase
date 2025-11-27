@@ -1,0 +1,112 @@
+{
+  "vendor_name": "KFC",
+  "vendor_name_cn": "肯德基",
+  "city": "Beijing",
+  "vendor_links": {
+    "meituan": "https://www.meituan.com/kfc/kfc_beijing",
+    "eleme": "https://www.ele.me/kfc/kfc_beijing",
+    "douyin": "https://www.douyin.com/kfc/kfc_beijing"
+  },
+  "menu": {
+    "chicken_burgers": [
+      {
+        "name": "Zinger Burger",
+        "name_cn": "劲脆鸡腿堡",
+        "category": "Chicken Burgers"
+      },
+      {
+        "name": "New Orleans Grilled Chicken Burger",
+        "name_cn": "新奥尔良烤鸡腿堡",
+        "category": "Chicken Burgers"
+      },
+      {
+        "name": "Crispy Chicken Burger",
+        "name_cn": "香辣鸡腿堡",
+        "category": "Chicken Burgers"
+      }
+    ],
+    "chicken_items": [
+      {
+        "name": "Original Recipe Chicken",
+        "name_cn": "吮指原味鸡",
+        "category": "Chicken"
+      },
+      {
+        "name": "Crispy Spicy Chicken",
+        "name_cn": "香辣鸡腿",
+        "category": "Chicken"
+      },
+      {
+        "name": "Chicken Nuggets",
+        "name_cn": "上校鸡块",
+        "category": "Chicken"
+      },
+      {
+        "name": "Popcorn Chicken",
+        "name_cn": "劲爆鸡米花",
+        "category": "Chicken"
+      },
+      {
+        "name": "Hot Wings",
+        "name_cn": "香辣鸡翅",
+        "category": "Chicken"
+      }
+    ],
+    "wraps_and_rice": [
+      {
+        "name": "New Orleans Chicken Wrap",
+        "name_cn": "新奥尔良鸡腿卷",
+        "category": "Wraps"
+      },
+      {
+        "name": "Golden Chicken Rice Bowl",
+        "name_cn": "黄金鸡块饭",
+        "category": "Rice Bowls"
+      }
+    ],
+    "sides": [
+      {
+        "name": "French Fries",
+        "name_cn": "薯条",
+        "category": "Sides"
+      },
+      {
+        "name": "Mashed Potato & Gravy",
+        "name_cn": "土豆泥配肉汁",
+        "category": "Sides"
+      },
+      {
+        "name": "Corn Cup",
+        "name_cn": "玉米杯",
+        "category": "Sides"
+      },
+      {
+        "name": "Egg Tart",
+        "name_cn": "葡式蛋挞",
+        "category": "Desserts"
+      }
+    ],
+    "drinks": [
+      {
+        "name": "Pepsi",
+        "name_cn": "百事可乐",
+        "category": "Drinks"
+      },
+      {
+        "name": "7-Up",
+        "name_cn": "七喜",
+        "category": "Drinks"
+      },
+      {
+        "name": "Iced Lemon Tea",
+        "name_cn": "冰柠檬红茶",
+        "category": "Drinks"
+      },
+      {
+        "name": "Hot Coffee",
+        "name_cn": "热咖啡",
+        "category": "Drinks"
+      }
+    ]
+  }
+}

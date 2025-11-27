@@ -1,0 +1,142 @@
+{
+  "vendor_name": "McDonald's",
+  "vendor_name_cn": "麦当劳",
+  "city": "Beijing",
+  "vendor_links": {
+    "meituan": "",
+    "eleme": "",
+    "douyin": ""
+  },
+  "menu": {
+    "burgers": [
+      {
+        "name": "Big Mac",
+        "name_cn": "巨无霸",
+        "category": "Burgers"
+      },
+      {
+        "name": "Quarter Pounder with Cheese",
+        "name_cn": "四盎司芝士牛堡",
+        "category": "Burgers"
+      },
+      {
+        "name": "Double Cheeseburger",
+        "name_cn": "双层吉士汉堡",
+        "category": "Burgers"
+      },
+      {
+        "name": "Cheeseburger",
+        "name_cn": "吉士汉堡包",
+        "category": "Burgers"
+      },
+      {
+        "name": "McSpicy Chicken Sandwich",
+        "name_cn": "麦辣鸡腿堡",
+        "category": "Chicken Burgers"
+      },
+      {
+        "name": "Crispy Chicken Sandwich",
+        "name_cn": "香辣鸡腿堡",
+        "category": "Chicken Burgers"
+      },
+      {
+        "name": "McChicken",
+        "name_cn": "麦香鸡",
+        "category": "Chicken Burgers"
+      },
+      {
+        "name": "Filet-O-Fish",
+        "name_cn": "麦香鱼",
+        "category": "Fish Burgers"
+      }
+    ],
+    "chicken_items": [
+      {
+        "name": "Chicken McNuggets (5 pcs)",
+        "name_cn": "麦乐鸡 5块",
+        "category": "Chicken Snacks"
+      },
+      {
+        "name": "Chicken McNuggets (10 pcs)",
+        "name_cn": "麦乐鸡 10块",
+        "category": "Chicken Snacks"
+      },
+      {
+        "name": "Spicy Chicken Wings",
+        "name_cn": "麦辣鸡翅",
+        "category": "Chicken Snacks"
+      }
+    ],
+    "sides": [
+      {
+        "name": "French Fries",
+        "name_cn": "薯条",
+        "category": "Sides"
+      },
+      {
+        "name": "Corn Cup",
+        "name_cn": "玉米杯",
+        "category": "Sides"
+      },
+      {
+        "name": "Mashed Potato",
+        "name_cn": "土豆泥",
+        "category": "Sides"
+      }
+    ],
+    "drinks": [
+      {
+        "name": "Coca-Cola",
+        "name_cn": "可口可乐",
+        "category": "Drinks"
+      },
+      {
+        "name": "Sprite",
+        "name_cn": "雪碧",
+        "category": "Drinks"
+      },
+      {
+        "name": "Fanta",
+        "name_cn": "芬达",
+        "category": "Drinks"
+      },
+      {
+        "name": "Iced Lemon Tea",
+        "name_cn": "冰柠檬红茶",
+        "category": "Drinks"
+      },
+      {
+        "name": "Hot Coffee",
+        "name_cn": "热咖啡",
+        "category": "Drinks"
+      },
+      {
+        "name": "Latte",
+        "name_cn": "拿铁",
+        "category": "Drinks"
+      }
+    ],
+    "desserts": [
+      {
+        "name": "Chocolate Sundae",
+        "name_cn": "巧克力圣代",
+        "category": "Desserts"
+      },
+      {
+        "name": "Strawberry Sundae",
+        "name_cn": "草莓圣代",
+        "category": "Desserts"
+      },
+      {
+        "name": "Apple Pie",
+        "name_cn": "苹果派",
+        "category": "Desserts"
+      },
+      {
+        "name": "Oreo McFlurry",
+        "name_cn": "奥利奥麦旋风",
+        "category": "Desserts"
+      }
+    ]
+  }
+}

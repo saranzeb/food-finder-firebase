@@ -1,59 +1,112 @@
 import { NextResponse } from "next/server";
-import { db } from "@/firebase"; // your existing firebase.js
-import { collection, query, where, getDocs } from "firebase/firestore";
-import OpenAI from "openai";
+import { initializeApp, getApps } from "firebase/app";
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  getDocs,
+  doc,
+  getDoc,
+} from "firebase/firestore";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY, // store this in .env.local
-});
+import { aiClient } from "@/lib/aiClient";
 
+// ---------------------
+// FIREBASE CONFIG (KEEP)
+// ---------------------
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+};
+
+if (!getApps().length) initializeApp(firebaseConfig);
+const db = getFirestore();
+const FOOD_COLLECTION = "foodNodes";
+
+// ===============================================
+//  🔥 MAIN SEARCH API — DB → AI FALLBACK
+// ===============================================
 export async function GET(req) {
-  const { searchParams } = new URL(req.url);
-  const foodName = searchParams.get("foodName");
-  if (!foodName) {
-    return NextResponse.json({ error: "Missing foodName" }, { status: 400 });
-  }
-
   try {
-    // 🔹 Step 1: Try finding in Firestore
-    const q = query(collection(db, "foods"), where("name", "==", foodName));
+    const { searchParams } = new URL(req.url);
+	const foodName = searchParams.get("foodName");
+	const cityValue = searchParams.get("city");   // correct
+	if (!foodName) {
+	  return NextResponse.json({ error: "Missing foodName" }, { status: 400 });
+	}
+	const cleanName = foodName.trim();   // KEEP THIS
+
+  // ===========================================
+  // 1️⃣ SEARCH FIRESTORE FIRST
+  // ===========================================
+  try {
+    const q = query(
+	  collection(db, FOOD_COLLECTION),
+	  where("type", "==", "item"),
+	  where("city", "==", cityValue),    // ✅ here
+	  where("name", "==", cleanName)
+	);
     const snap = await getDocs(q);
 
     if (!snap.empty) {
-      const items = snap.docs.map((doc) => doc.data());
-      return NextResponse.json({ source: "database", results: items });
+      const itemDoc = snap.docs[0];
+      const item = itemDoc.data();
+
+      let categoryName = null;
+      let subcategoryName = null;
+
+      if (item.parentId) {
+        const subSnap = await getDoc(doc(db, FOOD_COLLECTION, item.parentId));
+        if (subSnap.exists()) {
+          const subcat = subSnap.data();
+          subcategoryName = subcat.name;
+
+          if (subcat.parentId) {
+            const catSnap = await getDoc(
+              doc(db, FOOD_COLLECTION, subcat.parentId)
+            );
+            if (catSnap.exists()) {
+              categoryName = catSnap.data().name;
+            }
+          }
+        }
+      }
+
+      return NextResponse.json({
+        source: "database",
+        result: {
+          name: item.name,
+          category: categoryName,
+          subcategory: subcategoryName,
+          vendors: Array.isArray(item.vendors) ? item.vendors : [],
+        },
+      });
     }
+  } catch (err) {
+    console.warn("Firestore search error:", err.message);
+  }
 
-    // 🔹 Step 2: If not found, ask GPT
-    const gptPrompt = `
-      Provide a JSON array of 3 popular vendors or restaurants where one can find "${foodName}".
-      Include name and valid website URL.
-      Example format:
-      [
-        {"name": "Restaurant A", "url": "https://example.com"},
-        {"name": "Restaurant B", "url": "https://example.com"}
-      ]
-    `;
-
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [{ role: "user", content: gptPrompt }],
-    });
-
-    const text = completion.choices[0].message.content.trim();
-    const parsed = JSON.parse(text);
+  // ===========================================
+  // 2️⃣ NOT FOUND → ASK UNIVERSAL AI CLIENT
+  // ===========================================
+  try {
+    const aiResult = await aiClient.searchFood(cleanName);
 
     return NextResponse.json({
-      source: "gpt",
-      results: [
-        {
-          name: foodName,
-          vendors: parsed,
-        },
-      ],
+      source: "ai",
+      result: aiResult,
     });
+
   } catch (err) {
-    console.error("Error searching:", err);
-    return NextResponse.json({ error: "Failed to search" }, { status: 500 });
+    console.error("AI Search Error:", err);
+    return NextResponse.json(
+      { error: "AI search failed", details: err.message },
+      { status: 500 }
+    );
   }
 }
