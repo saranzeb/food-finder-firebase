@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "food-finder-firebase-22160",
+  "private_key_id": "c11d4932085b149a32c5c5170343c6db3f2ac3a8",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCchEyZf8i8WeDN\nX0UaBr9I8S1k73YaFHTju4rEfCS38GHBHTybC0YhsWc/fJTaSmA0q2DijlfPxeSj\nHA+tKpAY7lrMo6gKT1fnVKzZPf8TltyDf6CdOE+fJ0ExfJ6vKs+VScAPxf4zX3en\nJhSwqiQYIW1HrLdNDwxKiw6O+/oft5h808NFhUjpT9ZwqcGLS1/LEYL5f4pMv3X5\nhvjhw4Z/iHKzc6zCRLkFZ2zsDfeQUJzpI14Cr2H0USodgT93BYCOnHe1oYsbgAqu\nVQaKvoG/UYc2rYk8BbmC7yMwy18b878EIl79fPMwQQatHbiOZZFKlfkupWQqqngM\nxwlj0Ef7AgMBAAECggEADQ3TvbG0slDkuPxLLSKG7bR/zr1SIla2cRABQOYBwf2g\niZTAq0XDcaf0Lo1bdOFjKMFqcTriBAhDS39Zp123avzmQc8cgs+fS0H6sJvFHIMm\nnSkV4kcCDQofG9uC+KUfbxoZlLc0vmAmAKDidOGb5Q9Up/e1yg2JPuZeLnrBn8d0\n4k5s6vrAEXzIawfnYgBUeoNZktrXpD2EIajoje+EmMzNv8MzhHtlR6pEYsiHOgsB\nZUqDh45mnLlLKsOl4lFxiDvCGn+9jTZASQtni/2WGY1asSWQtPLJgHr4cYHIawP7\nZl4BavVJcULfh6e9jhTndR1FJzz37g5BXDBAuG2JIQKBgQDJciZKzIDFRtzUr8kf\n9g4gmgrYo8xEeUd++r74bcKEC57Wy2HR9thRZay995+95nPRVPA+9Rx/F32EfSpb\nkbXNXdQgPaU65MTraCFaJoXGrBkOhrkY3OVKqNUcIqzbAkX9MH/2fXTRDInkm/8i\nFsiSCj+la2na/QaQhV0jf1qRaQKBgQDG501+xsd8aS1SIYegFrRfX956FcxCZznA\nJKs8LM+22KLE0FOlCvuLKzmalEhJ13gIW1ik/27Qu0wclZ90PiRWePESg/uPxWZH\n3cY9O8v5x9eC97GovKINGEbCL3SCMIP1/Ai0s8xaaNQ6NX9ixQ6L8Vbgblyj64Am\nXFf26JG9wwKBgE0WUI75GSHlDyaYqjd/2kIhkJr8e3OMkY6G98NrhS8wnzUFGUbW\n1kq3xNXhR5DM+m8VuOXuuFvuKksj9qyZ4t9W05EO5gbWeoC3FWRBL5oqS2Bir7xS\n86+RUhP1NP6OLShJgf5aXfSNfssr4wMxgslYAKkVpKl3gCaX0l9+IbNZAoGAVzmw\nHlyFtuVY3p+dnnLWfszH/7n3bVdfWAe8oBL2tDSkjLLfO41pakp2ZHeKi/dVyDRm\n11S9AARjCFYFKzDlNparAXenphDnHbT/7nJ+rPcaZ3DAFENEvYFb5mRxL3afKAxy\ntOv0PeGi0DQNvP61tmELvDgpoCjydeAhI0IyR4kCgYEAnbJc+j4iFits6kaE5maY\n6tt+fGMsguSGh1I9V1eqto16N3gxXcN7PwVR2IaCqZTh0hrNxVQOGT1JxzANMNHA\npJAkzD56yuIaJlcaoEt9kpiVQObmP+JIyAczyjUs7dRXECsQcFnN6nqazKagLHAX\nS3ELBZ3m6bFSzk7z3zYM3OA=\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-fbsvc@food-finder-firebase-22160.iam.gserviceaccount.com",
+  "client_id": "106424972336919966107",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40food-finder-firebase-22160.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

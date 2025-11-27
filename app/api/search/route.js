@@ -13,7 +13,7 @@ import {
 import { aiClient } from "@/lib/aiClient";
 
 // ---------------------
-// FIREBASE CONFIG (KEEP)
+// FIREBASE CONFIG
 // ---------------------
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -26,6 +26,7 @@ const firebaseConfig = {
 
 if (!getApps().length) initializeApp(firebaseConfig);
 const db = getFirestore();
+
 const FOOD_COLLECTION = "foodNodes";
 
 // ===============================================
@@ -34,78 +35,91 @@ const FOOD_COLLECTION = "foodNodes";
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
-	const foodName = searchParams.get("foodName");
-	const cityValue = searchParams.get("city");   // correct
-	if (!foodName) {
-	  return NextResponse.json({ error: "Missing foodName" }, { status: 400 });
-	}
-	const cleanName = foodName.trim();   // KEEP THIS
+    const foodName = searchParams.get("foodName");
+    const cityValue = searchParams.get("city");
 
-  // ===========================================
-  // 1️⃣ SEARCH FIRESTORE FIRST
-  // ===========================================
-  try {
-    const q = query(
-	  collection(db, FOOD_COLLECTION),
-	  where("type", "==", "item"),
-	  where("city", "==", cityValue),    // ✅ here
-	  where("name", "==", cleanName)
-	);
-    const snap = await getDocs(q);
+    if (!foodName) {
+      return NextResponse.json(
+        { error: "Missing foodName" },
+        { status: 400 }
+      );
+    }
 
-    if (!snap.empty) {
-      const itemDoc = snap.docs[0];
-      const item = itemDoc.data();
+    const cleanName = foodName.trim();
 
-      let categoryName = null;
-      let subcategoryName = null;
+    // ===========================================
+    // 1️⃣ SEARCH FIRESTORE FIRST
+    // ===========================================
+    try {
+      const q = query(
+        collection(db, FOOD_COLLECTION),
+        where("type", "==", "item"),
+        where("city", "==", cityValue),
+        where("name", "==", cleanName)
+      );
 
-      if (item.parentId) {
-        const subSnap = await getDoc(doc(db, FOOD_COLLECTION, item.parentId));
-        if (subSnap.exists()) {
-          const subcat = subSnap.data();
-          subcategoryName = subcat.name;
+      const snap = await getDocs(q);
 
-          if (subcat.parentId) {
-            const catSnap = await getDoc(
-              doc(db, FOOD_COLLECTION, subcat.parentId)
-            );
-            if (catSnap.exists()) {
-              categoryName = catSnap.data().name;
+      if (!snap.empty) {
+        const itemDoc = snap.docs[0];
+        const item = itemDoc.data();
+
+        let categoryName = null;
+        let subcategoryName = null;
+
+        if (item.parentId) {
+          const subSnap = await getDoc(
+            doc(db, FOOD_COLLECTION, item.parentId)
+          );
+          if (subSnap.exists()) {
+            const subcat = subSnap.data();
+            subcategoryName = subcat.name;
+
+            if (subcat.parentId) {
+              const catSnap = await getDoc(
+                doc(db, FOOD_COLLECTION, subcat.parentId)
+              );
+              if (catSnap.exists()) {
+                categoryName = catSnap.data().name;
+              }
             }
           }
         }
+
+        return NextResponse.json({
+          source: "database",
+          result: {
+            name: item.name,
+            category: categoryName,
+            subcategory: subcategoryName,
+            vendors: Array.isArray(item.vendors) ? item.vendors : [],
+          },
+        });
       }
+    } catch (err) {
+      console.warn("Firestore search error:", err.message);
+    }
+
+    // ===========================================
+    // 2️⃣ NOT FOUND → ASK AI (UNIVERSAL CLIENT)
+    // ===========================================
+    try {
+      const aiResult = await aiClient.searchFood(cleanName);
 
       return NextResponse.json({
-        source: "database",
-        result: {
-          name: item.name,
-          category: categoryName,
-          subcategory: subcategoryName,
-          vendors: Array.isArray(item.vendors) ? item.vendors : [],
-        },
+        source: "ai",
+        result: aiResult,
       });
+    } catch (err) {
+      console.error("AI Search Error:", err);
+      return NextResponse.json(
+        { error: "AI search failed", details: err.message },
+        { status: 500 }
+      );
     }
   } catch (err) {
-    console.warn("Firestore search error:", err.message);
-  }
-
-  // ===========================================
-  // 2️⃣ NOT FOUND → ASK UNIVERSAL AI CLIENT
-  // ===========================================
-  try {
-    const aiResult = await aiClient.searchFood(cleanName);
-
-    return NextResponse.json({
-      source: "ai",
-      result: aiResult,
-    });
-
-  } catch (err) {
-    console.error("AI Search Error:", err);
     return NextResponse.json(
-      { error: "AI search failed", details: err.message },
+      { error: "Server error", details: err.message },
       { status: 500 }
     );
   }
